@@ -135,8 +135,8 @@ subprojects {
             repo = "maven"
             name = "${rootProject.name}"
             userOrg = user
-            websiteUrl = "https://github.com/dhakehurst/net.akehurst.kotlin.komposite"
-            vcsUrl = "https://github.com/dhakehurst/net.akehurst.kotlin.komposite"
+            websiteUrl = "https://github.com/dhakehurst/net.akehurst.kotlin.json"
+            vcsUrl = "https://github.com/dhakehurst/net.akehurst.kotlin.json"
             setLabels("kotlin")
             setLicenses("Apache-2.0")
         })
