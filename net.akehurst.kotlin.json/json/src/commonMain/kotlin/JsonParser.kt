@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.akehurst.kotlin.json
 
 import net.akehurst.kotlinx.collections.Stack
@@ -99,7 +98,7 @@ object JsonParser {
                 }
                 scanner.hasNext(TOKEN_STRING) -> {
                     val value = scanner.next(TOKEN_STRING)
-                    valueStack.push(JsonString(value.drop(1).dropLast(1)))
+                    valueStack.push(JsonString.decode(value.drop(1).dropLast(1)))
                 }
                 scanner.hasNext(TOKEN_ARRAY_START) -> {
                     scanner.next(TOKEN_ARRAY_START)
@@ -122,7 +121,7 @@ object JsonParser {
                     if (peek is JsonArray) {
                         peek.addElement(value)
                     } else {
-                        throw JsonParserException("Expected an Array but was a ${peek::class.simpleName}")
+                        throw JsonParserException("Expected an Array but was a ${peek::class}")
                     }
                 }
                 scanner.hasNext(TOKEN_SEP) -> {
@@ -139,7 +138,7 @@ object JsonParser {
                             val name = nameStack.pop()
                             peek.setProperty(name, value)
                         }
-                        else -> throw JsonParserException("Expected an Array or an Object but was a ${peek::class.simpleName}")
+                        else -> throw JsonParserException("Expected an Array or an Object but was a ${peek::class}")
                     }
                 }
                 scanner.hasNext(TOKEN_OBJECT_START) -> {
@@ -186,7 +185,7 @@ object JsonParser {
                         }
 
                     } else {
-                        throw JsonParserException("Expected an Object but was a ${peek::class.simpleName}")
+                        throw JsonParserException("Expected an Object but was a ${peek::class}")
                     }
                 }
                 scanner.hasNext(TOKEN_PROPERTY_SEP) -> {

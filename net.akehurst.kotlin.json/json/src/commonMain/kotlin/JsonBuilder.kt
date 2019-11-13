@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package net.akehurst.kotlin.json
 
 inline fun json(documentIdentity: String, init: JsonDocumentBuilder.() -> Unit): JsonDocument {
@@ -28,7 +26,7 @@ fun Any.toJson(): JsonValue {
         is Boolean -> JsonBoolean(this)
         is Number -> JsonNumber(this.toString())
         is String -> JsonString(this)
-        else -> throw JsonException("Cannot convert ${this::class.simpleName} to JsonValue")
+        else -> throw JsonException("Cannot convert ${this::class} to JsonValue")
     }
 }
 

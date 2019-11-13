@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package net.akehurst.kotlin.json
 
 class JsonException : RuntimeException {
@@ -213,13 +211,36 @@ data class JsonNumber(
 data class JsonString(
         val value: String
 ) : JsonValue() {
+
+    companion object {
+        fun decode(encodedValue: String): JsonString {
+            val value = encodedValue
+                    .replace("\\b", "\b")
+                    .replace("\\f", "\u000C")
+                    .replace("\\n", "\n")
+                    .replace("\\r", "\r")
+                    .replace("\\t", "\t")
+                    .replace("\\\"", "\"")
+                    .replace("\\\\", "\\")
+            return JsonString(value)
+        }
+    }
+
+    val encodedValue: String = value
+            .replace("\\", "\\\\")
+            .replace("\b", "\\b")
+            .replace("\u000C", "\\f")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
+            .replace("\"", "\\\"")
+
     override fun asString(): JsonString {
         return this
     }
 
     override fun toJsonString(): String {
-        val escaped = this.value.replace("\"", "\\\"")
-        return """"${this.value}""""
+        return """"${this.encodedValue}""""
     }
     override fun toFormattedJsonString(indent: String, increment:String): String {
         return this.toJsonString()
