@@ -21,8 +21,7 @@ class JsonParserException : RuntimeException {
     constructor(message: String) : super(message)
 }
 
-object JsonParser {
-
+class JsonParser {
 
     val TOKEN_WHITESPACE = Regex("\\s+", RegexOption.MULTILINE)
     val TOKEN_STRING = Regex("\"(?:\\\\?(.|\n))*?\"", RegexOption.MULTILINE)

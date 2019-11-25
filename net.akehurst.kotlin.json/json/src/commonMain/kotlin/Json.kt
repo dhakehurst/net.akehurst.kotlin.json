@@ -45,6 +45,6 @@ object Json {
 
     @JsName("process")
     fun process(jsonString: String): JsonDocument {
-        return JsonParser.process(jsonString)
+        return JsonParser().process(jsonString)
     }
 }

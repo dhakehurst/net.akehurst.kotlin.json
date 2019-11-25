@@ -1,5 +1,5 @@
 plugins {
-    id("net.akehurst.kotlin.kt2ts-plugin") version "1.0.0"
+    id("net.akehurst.kotlin.kt2ts") version "1.0.0"
 }
 
 val version_kotlinx:String by project
@@ -22,8 +22,7 @@ kotlin {
 kt2ts {
     localJvmName.set("jvm8")
     modulesConfigurationName.set("jvm8RuntimeClasspath")
-    packageJsonDir.set(file("${tsdDir}"))
-    declarationsFile.set(file("${tsdDir}/${project.group}-${project.name}.d.ts"))
+    outputDirectory.set(file("${tsdDir}"))
     classPatterns.set(listOf(
             "net.akehurst.kotlin.json.*"
     ))
