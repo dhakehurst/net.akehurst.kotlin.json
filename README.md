@@ -6,3 +6,8 @@
 
 Json for kotlin multiplatform
 
+A JSON implementation that supports JSON references, not quite but similar to [https://json-spec.readthedocs.io/reference.html].
+
+
+Suitable for mapping koltin objects into JSON, provides some support for LIST, SET, MAP, etc.
+
