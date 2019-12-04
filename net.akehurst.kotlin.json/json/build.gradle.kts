@@ -1,5 +1,5 @@
 plugins {
-    id("net.akehurst.kotlin.kt2ts") version "1.2.0"
+    id("net.akehurst.kotlin.kt2ts") version "1.3.0"
 }
 
 val version_kotlinx:String by project
