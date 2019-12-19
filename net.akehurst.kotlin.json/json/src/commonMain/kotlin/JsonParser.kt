@@ -173,9 +173,6 @@ class JsonParser {
                             }
                             // JsonReferenceableObject
                             (peek.property.containsKey(JsonDocument.TYPE) && peek.property[JsonDocument.TYPE] == JsonDocument.OBJECT) -> {
-                                //val jPath = path.elements.filter {
-                                //    it != JsonDocument.ELEMENTS && it != JsonDocument.VALUE
-                                //}
                                 val jPath = path.elements.toList()
                                 val obj = JsonReferencableObject(doc, jPath)
                                 valueStack.pop()

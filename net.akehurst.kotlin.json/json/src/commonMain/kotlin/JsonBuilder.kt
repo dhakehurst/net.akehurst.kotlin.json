@@ -353,7 +353,7 @@ class JsonMapBuilder(
         obj.setProperty(JsonDocument.TYPE, JsonDocument.MAP)
         val elements = JsonArray()
         elements.elements = _entries
-        obj.setProperty(JsonDocument.ELEMENTS, elements)
+        obj.setProperty(JsonDocument.ENTRIES, elements)
         return obj
     }
 }
