@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+    }
+}
 rootProject.name = file(".").name
 
 fileTree(".") {
@@ -25,5 +30,3 @@ fileTree(".") {
     include(prj)
     project(":$prj").projectDir = File(relativePath(it.parent))
 }
-
-enableFeaturePreview("GRADLE_METADATA")

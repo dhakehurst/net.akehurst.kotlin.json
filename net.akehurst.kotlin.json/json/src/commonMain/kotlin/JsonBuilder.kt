@@ -15,6 +15,9 @@
  */
 package net.akehurst.kotlin.json
 
+@DslMarker
+annotation class JsonDocumentMarker
+
 inline fun json(documentIdentity: String, init: JsonDocumentBuilder.() -> Unit): JsonDocument {
     val builder = JsonDocumentBuilder(documentIdentity)
     builder.init()
@@ -30,6 +33,7 @@ fun Any.toJson(): JsonValue {
     }
 }
 
+@JsonDocumentMarker
 class JsonDocumentBuilder(documentIdentity: String) {
 
     private val _doc = JsonDocument(documentIdentity)
@@ -100,6 +104,7 @@ class JsonDocumentBuilder(documentIdentity: String) {
     }
 }
 
+@JsonDocumentMarker
 class JsonArrayBuilder(
         val doc: JsonDocument,
         val path: List<String>
@@ -202,6 +207,7 @@ class JsonArrayBuilder(
     }
 }
 
+@JsonDocumentMarker
 class JsonCollectionBuilder(
         val doc: JsonDocument,
         val path: List<String>
@@ -307,6 +313,7 @@ class JsonCollectionBuilder(
     }
 }
 
+@JsonDocumentMarker
 class JsonMapBuilder(
         val doc: JsonDocument,
         val path: List<String>
@@ -358,6 +365,7 @@ class JsonMapBuilder(
     }
 }
 
+@JsonDocumentMarker
 class JsonObjectBuilder(
         val doc: JsonDocument,
         val path: List<String>
@@ -400,6 +408,7 @@ class JsonObjectBuilder(
     }
 }
 
+@JsonDocumentMarker
 class JsonValueBuilder(
         val doc: JsonDocument,
         val path: List<String>,
