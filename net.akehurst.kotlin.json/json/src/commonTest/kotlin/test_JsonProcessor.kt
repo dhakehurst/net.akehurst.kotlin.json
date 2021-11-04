@@ -94,7 +94,6 @@ class test_JsonProcessor {
 
     }
 
-
     @Test
     fun emptyArray() {
 
@@ -144,7 +143,6 @@ class test_JsonProcessor {
         assertEquals(expected, actual)
 
     }
-
 
     @Test
     fun object_() {

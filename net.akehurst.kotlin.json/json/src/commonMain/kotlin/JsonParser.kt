@@ -172,7 +172,7 @@ class JsonParser {
                                 valueStack.push(ref)
                             }
                             // JsonReferenceableObject
-                            (peek.property.containsKey(JsonDocument.TYPE) && peek.property[JsonDocument.TYPE] == JsonDocument.OBJECT) -> {
+                            (peek.property.containsKey(JsonDocument.TYPE) && peek.property[JsonDocument.TYPE] == JsonDocument.ComplexObjectKind.OBJECT.asJsonString) -> {
                                 val jPath = path.elements.toList()
                                 val obj = JsonReferencableObject(doc, jPath)
                                 valueStack.pop()

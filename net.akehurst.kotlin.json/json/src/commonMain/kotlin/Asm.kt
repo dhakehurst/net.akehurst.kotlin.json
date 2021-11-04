@@ -22,6 +22,12 @@ class JsonException : RuntimeException {
 data class JsonDocument(
         val identity: String
 ) {
+    enum class ComplexObjectKind {
+        PRIMITIVE,ENUM,ARRAY,OBJECT,LIST,SET,MAP;
+
+        val asJsonString get() = JsonString("\$${this.name}")
+    }
+
     companion object {
         val TYPE = "\$type"     // PRIMITIVE | OBJECT | LIST | SET | MAP
         val CLASS = "\$class"
@@ -29,13 +35,6 @@ data class JsonDocument(
         val VALUE = "\$value"
         val ELEMENTS = "\$elements"
         val ENTRIES = "\$entries"
-
-        val PRIMITIVE = JsonString("\$PRIMITIVE")
-        val ARRAY = JsonString("\$ARRAY") // TODO: ?
-        val OBJECT = JsonString("\$OBJECT")
-        val LIST = JsonString("\$LIST")
-        val MAP = JsonString("\$MAP")
-        val SET = JsonString("\$SET")
     }
 
     val references = mutableMapOf<List<String>, JsonValue>()

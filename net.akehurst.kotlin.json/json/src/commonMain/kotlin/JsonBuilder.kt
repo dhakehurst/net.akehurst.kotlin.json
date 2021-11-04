@@ -29,6 +29,7 @@ fun Any.toJson(): JsonValue {
         is Boolean -> JsonBoolean(this)
         is Number -> JsonNumber(this.toString())
         is String -> JsonString(this)
+        is Enum<*> -> JsonString(this.name)
         else -> throw JsonException("Cannot convert ${this::class} to JsonValue")
     }
 }
@@ -67,6 +68,10 @@ class JsonDocumentBuilder(documentIdentity: String) {
 
     fun primitiveObject(className: String, value: Any) {
         this._rootBuilder.primitiveObject(className, value)
+    }
+
+    fun enumObject(className: String, value: Enum<*>) {
+        this._rootBuilder.enumObject(className,value)
     }
 
     fun arrayJson(init: JsonArrayBuilder.() -> Unit) {
@@ -149,6 +154,12 @@ class JsonArrayBuilder(
     fun primitiveObject(className: String, value: Any) {
         val b = JsonValueBuilder(doc, nextPath)
         b.primitiveObject(className, value)
+        this._elements.add(b.value!!)
+    }
+
+    fun enumObject(className: String, value: Enum<*>) {
+        val b = JsonValueBuilder(doc, nextPath)
+        b.enumObject(className, value)
         this._elements.add(b.value!!)
     }
 
@@ -255,6 +266,12 @@ class JsonCollectionBuilder(
         this._elements.add(b.value!!)
     }
 
+    fun enumObject(className: String, value: Enum<*>) {
+        val b = JsonValueBuilder(doc, nextPath)
+        b.enumObject(className, value)
+        this._elements.add(b.value!!)
+    }
+
     fun reference(path:String) {
         val b = JsonValueBuilder(doc, nextPath)
         b.reference(path)
@@ -357,7 +374,7 @@ class JsonMapBuilder(
 
     fun build(): JsonUnreferencableObject {
         val obj = JsonUnreferencableObject()
-        obj.setProperty(JsonDocument.TYPE, JsonDocument.MAP)
+        obj.setProperty(JsonDocument.TYPE, JsonDocument.ComplexObjectKind.MAP.asJsonString)
         val elements = JsonArray()
         elements.elements = _entries
         obj.setProperty(JsonDocument.ENTRIES, elements)
@@ -393,7 +410,7 @@ class JsonObjectBuilder(
 
     fun build(path: List<String>, className: String): JsonReferencableObject {
         val obj = JsonReferencableObject(doc, path)
-        obj.setProperty(JsonDocument.TYPE, JsonDocument.OBJECT)
+        obj.setProperty(JsonDocument.TYPE, JsonDocument.ComplexObjectKind.OBJECT.asJsonString)
         obj.setProperty(JsonDocument.CLASS, JsonString(className))
         _properties.forEach {
             obj.setProperty(it.key, it.value)
@@ -445,7 +462,16 @@ class JsonValueBuilder(
     fun primitiveObject(className: String, value: Any) {
         this.validate(this)
         val obj = JsonUnreferencableObject()
-        obj.setProperty(JsonDocument.TYPE, JsonDocument.PRIMITIVE)
+        obj.setProperty(JsonDocument.TYPE, JsonDocument.ComplexObjectKind.PRIMITIVE.asJsonString)
+        obj.setProperty(JsonDocument.CLASS, JsonString(className))
+        obj.setProperty(JsonDocument.VALUE, value.toJson())
+        this.value = obj
+    }
+
+    fun enumObject(className: String, value: Enum<*>) {
+        this.validate(this)
+        val obj = JsonUnreferencableObject()
+        obj.setProperty(JsonDocument.TYPE, JsonDocument.ComplexObjectKind.ENUM.asJsonString)
         obj.setProperty(JsonDocument.CLASS, JsonString(className))
         obj.setProperty(JsonDocument.VALUE, value.toJson())
         this.value = obj
@@ -469,21 +495,21 @@ class JsonValueBuilder(
         this.validate(this)
         val builder = JsonCollectionBuilder(doc, path)
         builder.init()
-        this.value = builder.build(JsonDocument.ARRAY)
+        this.value = builder.build(JsonDocument.ComplexObjectKind.ARRAY.asJsonString)
     }
 
     fun listObject(init: JsonCollectionBuilder.() -> Unit) {
         this.validate(this)
         val builder = JsonCollectionBuilder(doc, path)
         builder.init()
-        this.value = builder.build(JsonDocument.LIST)
+        this.value = builder.build(JsonDocument.ComplexObjectKind.LIST.asJsonString)
     }
 
     fun setObject(init: JsonCollectionBuilder.() -> Unit) {
         this.validate(this)
         val builder = JsonCollectionBuilder(doc, path)
         builder.init()
-        this.value = builder.build(JsonDocument.SET)
+        this.value = builder.build(JsonDocument.ComplexObjectKind.SET.asJsonString)
     }
 
     fun mapObject(init: JsonMapBuilder.() -> Unit) {
