@@ -16,12 +16,80 @@
 
 package net.akehurst.kotlin.json
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 
 class test_JsonProcessor {
+
+    fun assertEquals(expected: JsonDocument, actual: JsonDocument) {
+        assertEquals(expected.identity, actual.identity)
+        assertEquals(expected.root, actual.root)
+    }
+
+    fun assertEquals(expected: JsonValue, actual: JsonValue) {
+        when {
+            expected is JsonNull && actual is JsonNull -> assertEquals(expected, actual)
+            expected is JsonString && actual is JsonString -> assertEquals(expected, actual)
+            expected is JsonNumber && actual is JsonNumber -> assertEquals(expected, actual)
+            expected is JsonBoolean && actual is JsonBoolean -> assertEquals(expected, actual)
+            expected is JsonArray && actual is JsonArray -> assertEquals(expected, actual)
+            expected is JsonReference && actual is JsonReference -> assertEquals(expected, actual)
+            expected is JsonReferencableObject && actual is JsonReferencableObject -> assertEquals(expected, actual)
+            expected is JsonUnreferencableObject && actual is JsonUnreferencableObject -> assertEquals(expected, actual)
+        }
+    }
+
+    fun assertEquals(expected: JsonNull, actual: JsonNull) {
+        assertTrue(true)
+    }
+
+    fun assertEquals(expected: JsonString, actual: JsonString) {
+        assertEquals(expected.encodedValue,actual.encodedValue)
+    }
+
+    fun assertEquals(expected: JsonNumber, actual: JsonNumber) {
+        assertEquals(expected.toStringJson(),actual.toStringJson())
+    }
+
+    fun assertEquals(expected: JsonBoolean, actual: JsonBoolean) {
+        assertEquals(expected.value,actual.value)
+    }
+
+    fun assertEquals(expected: JsonArray, actual: JsonArray) {
+        assertEquals(expected.elements.size, actual.elements.size)
+        for (i in 0 until expected.elements.size) {
+            val expEl = expected.elements[i]
+            val actEl = expected.elements[i]
+            assertEquals(expEl,actEl)
+        }
+        expected.elements.forEach { }
+    }
+
+    fun assertEquals(expected: JsonReference, actual: JsonReference) {
+        assertEquals(expected.document.identity,actual.document.identity)
+        assertEquals(expected.refPath,actual.refPath)
+    }
+
+    fun assertEquals(expected: JsonReferencableObject, actual: JsonReferencableObject) {
+        assertEquals(expected.document.identity,actual.document.identity)
+        assertEquals(expected.path,actual.path)
+        assertEquals(expected.property.size,actual.property.size)
+        for(k in expected.property.keys) {
+            val expEl = expected.property[k]!!
+            val actEl = actual.property[k]!!
+            assertEquals(expEl,actEl)
+        }
+    }
+
+    fun assertEquals(expected: JsonUnreferencableObject, actual: JsonUnreferencableObject) {
+        assertEquals(expected.property.size,actual.property.size)
+        for(k in expected.property.keys) {
+            val expEl = expected.property[k]!!
+            val actEl = actual.property[k]!!
+            assertEquals(expEl,actEl)
+        }
+    }
+
 
     @Test
     fun empty() {
@@ -42,7 +110,7 @@ class test_JsonProcessor {
         val actual = Json.process(jsonString)
 
         val expected = json("json") {
-            primitive(false)
+            boolean(false)
         }
 
         assertEquals(expected, actual)
@@ -57,7 +125,7 @@ class test_JsonProcessor {
         val actual = Json.process(jsonString)
 
         val expected = json("json") {
-            primitive(true)
+            boolean(true)
         }
 
         assertEquals(expected, actual)
@@ -72,11 +140,65 @@ class test_JsonProcessor {
         val actual = Json.process(jsonString)
 
         val expected = json("json") {
-            primitive(1)
+            number(1)
         }
 
         assertEquals(expected, actual)
 
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    @Test
+    fun negative_loohbehind() {
+        val regex = Regex("(?<=x)a") // a preceded by x
+        assertFalse(regex.matchesAt("ba",1))
+        assertTrue(regex.matchesAt("xa",1))
+    }
+    @OptIn(ExperimentalStdlibApi::class)
+    @Test
+    fun negative_loohbehind1() {
+        val regex = Regex("(?<!x)a") // a NOT preceded by x
+        assertTrue(regex.matchesAt("ba",1))
+        assertFalse(regex.matchesAt("xa",1))
+    }
+    @OptIn(ExperimentalStdlibApi::class)
+    @Test
+    fun negative_loohbehind2() {
+        val regex = Regex("(?<=\\\\)a") // a preceded by \
+        assertFalse(regex.matchesAt("ba",1))
+        assertTrue(regex.matchesAt("\\a",1))
+    }
+    @OptIn(ExperimentalStdlibApi::class)
+    @Test
+    fun negative_loohbehind3() {
+        val regex = Regex("(?<!\\\\)a") // a NOT preceded by \
+        assertTrue(regex.matchesAt("ba",1))
+        assertFalse(regex.matchesAt("\\a",1))
+    }
+    @OptIn(ExperimentalStdlibApi::class)
+    @Test
+    fun negative_loohbehind4() {
+        val regex = Regex("(?<!\\\\)\\\\(.)") // \<any> NOT preceded by \
+        assertTrue(regex.matchesAt("\\\\",0))
+        assertFalse(regex.matchesAt("\\\\a",1))
+    }
+    @Test
+    fun encode() {
+        assertEquals("a",JsonString.encode("a"))
+        assertEquals("\\\\a",JsonString.encode("\\a"))
+        assertEquals("\\\\",JsonString.encode("\\"))
+        assertEquals("\\n",JsonString.encode("\n"))
+        assertEquals("\\\\n",JsonString.encode("\\n"))
+        assertEquals("\\\"",JsonString.encode("\""))
+    }
+    @Test
+    fun decode() {
+        assertEquals("a",JsonString.decode("a"))
+        assertEquals("\\a",JsonString.decode("\\\\a"))
+        assertEquals("\\",JsonString.decode("\\\\"))
+        assertEquals("\n",JsonString.decode("\\n"))
+        assertEquals("\\n",JsonString.decode("\\\\n"))
+        assertEquals("\"",JsonString.decode("\\\""))
     }
 
     @Test
@@ -87,12 +209,43 @@ class test_JsonProcessor {
         val actual = Json.process(jsonString)
 
         val expected = json("json") {
-            primitive("hello")
+            string("hello")
         }
 
         assertEquals(expected, actual)
 
     }
+
+    @Test
+    fun string2() {
+
+        val jsonString = "\"hello\\nWorld\""
+
+        val actual = Json.process(jsonString)
+
+        val expected = json("json") {
+            string("hello\nWorld")
+        }
+
+        assertEquals(expected, actual)
+
+    }
+
+    @Test
+    fun string3() {
+
+        val jsonString = "\"hello\\\\nWorld\""
+
+        val actual = Json.process(jsonString)
+
+        val expected = json("json") {
+            string("hello\\nWorld")
+        }
+
+        assertEquals(expected, actual)
+
+    }
+
 
     @Test
     fun emptyArray() {
@@ -102,7 +255,7 @@ class test_JsonProcessor {
         val actual = Json.process(jsonString)
 
         val expected = json("json") {
-            arrayJson{}
+            arrayJson {}
         }
 
         assertEquals(expected, actual)
@@ -118,9 +271,9 @@ class test_JsonProcessor {
 
         val expected = json("json") {
             arrayJson {
-                primitive(1)
-                primitive(true)
-                primitive("hello")
+                number(1)
+                boolean(true)
+                string("hello")
                 objectJson { }
             }
         }
@@ -165,13 +318,20 @@ class test_JsonProcessor {
         val expected = json("json") {
             objectJson {
                 property("bProp", true)
-                property("nProp", true)
-                property("sProp", true)
-                property("aProp", true)
+                property("nProp", 1)
+                property("sProp", "hello")
+                property("aProp") {
+                    arrayJson {
+                        number(1)
+                        boolean(true)
+                        string("hello")
+                        objectJson {  }
+                    }
+                }
                 property("oProp") {
                     objectJson {
-                        property("bProp", true)
-                        property("nProp", true)
+                        property("bProp", false)
+                        property("nProp", 3.14)
                     }
                 }
             }

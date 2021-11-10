@@ -41,8 +41,8 @@ data class JsonDocument(
 
     var root: JsonValue = JsonUnreferencableObject()
 
-    fun toJsonString(): String {
-        return this.root.toJsonString()
+    fun toStringJson(): String {
+        return this.root.toStringJson()
     }
 
     fun toFormattedJsonString(indent:String="  ", increment:String="  "): String {
@@ -76,7 +76,7 @@ abstract class JsonValue {
         throw JsonException("Object is not a JsonArray")
     }
 
-    abstract fun toJsonString(): String
+    abstract fun toStringJson(): String
     abstract fun toFormattedJsonString(indent:String, increment:String): String
 }
 
@@ -92,9 +92,9 @@ abstract class JsonObject : JsonValue() {
         return this
     }
 
-    override fun toJsonString(): String {
+    override fun toStringJson(): String {
         val elements = this.property.map {
-            """"${it.key}":${it.value.toJsonString()}"""
+            """"${it.key}":${it.value.toStringJson()}"""
         }.joinToString(",")
         return """{${elements}}"""
     }
@@ -144,13 +144,13 @@ data class JsonReference(
         return this
     }
 
-    override fun toJsonString(): String {
+    override fun toStringJson(): String {
         val refPathStr = this.refPath.joinToString(separator="/", prefix = "/")
         return """{ "${Json.REF}" : "$refPathStr" }"""
     }
 
     override fun toFormattedJsonString(indent: String, increment:String): String {
-        return this.toJsonString()
+        return this.toStringJson()
     }
 }
 
@@ -161,11 +161,11 @@ data class JsonBoolean(
         return this
     }
 
-    override fun toJsonString(): String {
+    override fun toStringJson(): String {
         return """${this.value}"""
     }
     override fun toFormattedJsonString(indent: String, increment:String): String {
-        return this.toJsonString()
+        return this.toStringJson()
     }
 }
 
@@ -200,11 +200,11 @@ data class JsonNumber(
         return this
     }
 
-    override fun toJsonString(): String {
-        return """${this._value}"""
+    override fun toStringJson(): String {
+        return this._value
     }
     override fun toFormattedJsonString(indent: String, increment:String): String {
-        return this.toJsonString()
+        return this.toStringJson()
     }
 }
 
@@ -213,37 +213,38 @@ data class JsonString(
 ) : JsonValue() {
 
     companion object {
-        fun decode(encodedValue: String): JsonString {
-            val value = encodedValue
-                    .replace("\\b", "\b")
-                    .replace("\\f", "\u000C")
-                    .replace("\\n", "\n")
-                    .replace("\\r", "\r")
-                    .replace("\\t", "\t")
+        fun encode(rawString:String): String {
+            return rawString
+                .replace("\\", "\\\\")
+                .replace("\b", "\\b")
+                .replace("\u000C", "\\f")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t")
+                .replace("\"", "\\\"")
+        }
+        fun decode(encodedValue: String): String {
+            val value = encodedValue//.replace(Regex("(?<!\\\\)\\\\(.)"),"$1")
+                    .replace(Regex("(?<!\\\\)\\\\b"), "\b")
+                    .replace(Regex("(?<!\\\\)\\\\f"), "\u000C")
+                    .replace(Regex("(?<!\\\\)\\\\n"), "\n")
+                    .replace(Regex("(?<!\\\\)\\\\r"), "\r")
+                    .replace(Regex("(?<!\\\\)\\\\t"), "\t")
                     .replace("\\\"", "\"")
                     .replace("\\\\", "\\")
-            return JsonString(value)
+            return value
         }
     }
 
-    val encodedValue: String = value
-            .replace("\\", "\\\\")
-            .replace("\b", "\\b")
-            .replace("\u000C", "\\f")
-            .replace("\n", "\\n")
-            .replace("\r", "\\r")
-            .replace("\t", "\\t")
-            .replace("\"", "\\\"")
+    val encodedValue: String get() = encode(value)
 
-    override fun asString(): JsonString {
-        return this
-    }
+    override fun asString(): JsonString =this
 
-    override fun toJsonString(): String {
+    override fun toStringJson(): String {
         return """"${this.encodedValue}""""
     }
     override fun toFormattedJsonString(indent: String, increment:String): String {
-        return this.toJsonString()
+        return this.toStringJson()
     }
 }
 
@@ -255,9 +256,9 @@ class JsonArray : JsonValue() {
         return this
     }
 
-    override fun toJsonString(): String {
+    override fun toStringJson(): String {
         val elements = this.elements.map {
-            it.toJsonString()
+            it.toStringJson()
         }.joinToString(",")
         return """[${elements}]"""
     }
@@ -282,6 +283,7 @@ class JsonArray : JsonValue() {
         return this
     }
 
+    override fun hashCode(): Int = this.elements.hashCode()
     override fun equals(other: Any?): Boolean {
         return when {
             other is JsonArray -> this.elements == other.elements
@@ -291,7 +293,7 @@ class JsonArray : JsonValue() {
 }
 
 object JsonNull : JsonValue() {
-    override fun toJsonString(): String {
+    override fun toStringJson(): String {
         return "null"
     }
 
@@ -299,6 +301,6 @@ object JsonNull : JsonValue() {
         return "null"
     }
     override fun toFormattedJsonString(indent: String, increment:String): String {
-        return this.toJsonString()
+        return this.toStringJson()
     }
 }

@@ -24,7 +24,7 @@ inline fun json(documentIdentity: String, init: JsonDocumentBuilder.() -> Unit):
     return builder.build()
 }
 
-fun Any.toJson(): JsonValue {
+fun Any.toJsonValue(): JsonValue {
     return when (this) {
         is Boolean -> JsonBoolean(this)
         is Number -> JsonNumber(this.toString())
@@ -60,10 +60,6 @@ class JsonDocumentBuilder(documentIdentity: String) {
 
     fun string(value: String) {
         this._rootBuilder.string(value)
-    }
-
-    fun primitive(value: Any) {
-        this._rootBuilder.primitive(value)
     }
 
     fun primitiveObject(className: String, value: Any) {
@@ -142,12 +138,6 @@ class JsonArrayBuilder(
     fun string(value: String) {
         val b = JsonValueBuilder(doc, nextPath)
         b.string(value)
-        this._elements.add(b.value!!)
-    }
-
-    fun primitive(value: Any) {
-        val b = JsonValueBuilder(doc, nextPath)
-        b.primitive(value)
         this._elements.add(b.value!!)
     }
 
@@ -254,12 +244,6 @@ class JsonCollectionBuilder(
         this._elements.add(b.value!!)
     }
 
-    fun primitive(value: Any) {
-        val b = JsonValueBuilder(doc, nextPath)
-        b.primitive(value)
-        this._elements.add(b.value!!)
-    }
-
     fun primitiveObject(className: String, value: Any) {
         val b = JsonValueBuilder(doc, nextPath)
         b.primitiveObject(className, value)
@@ -339,8 +323,8 @@ class JsonMapBuilder(
     private val _entries = mutableListOf<JsonUnreferencableObject>()
 
     fun entry(key: Any, value: Any) {
-        val jKey = key.toJson()
-        val jValue = value.toJson()
+        val jKey = key.toJsonValue()
+        val jValue = value.toJsonValue()
         val entry = JsonUnreferencableObject()
         entry.setProperty(JsonDocument.KEY, jKey)
         entry.setProperty(JsonDocument.VALUE, jValue)
@@ -391,7 +375,7 @@ class JsonObjectBuilder(
     private val _properties = mutableMapOf<String, JsonValue>()
 
     fun property(key: String, value: Any?) {
-        val jValue = value?.toJson() ?: JsonNull
+        val jValue = value?.toJsonValue() ?: JsonNull
         this._properties[key] = jValue
     }
 
@@ -449,14 +433,9 @@ class JsonValueBuilder(
         this.value = JsonNumber(value.toString())
     }
 
-    fun string(value: String) {
+    fun string(rawValue: String) {
         this.validate(this)
-        this.value = JsonString(value)
-    }
-
-    fun primitive(value: Any) {
-        this.validate(this)
-        this.value = value.toJson()
+        this.value = JsonString(rawValue)
     }
 
     fun primitiveObject(className: String, value: Any) {
@@ -464,7 +443,7 @@ class JsonValueBuilder(
         val obj = JsonUnreferencableObject()
         obj.setProperty(JsonDocument.TYPE, JsonDocument.ComplexObjectKind.PRIMITIVE.asJsonString)
         obj.setProperty(JsonDocument.CLASS, JsonString(className))
-        obj.setProperty(JsonDocument.VALUE, value.toJson())
+        obj.setProperty(JsonDocument.VALUE, value.toJsonValue())
         this.value = obj
     }
 
@@ -473,7 +452,7 @@ class JsonValueBuilder(
         val obj = JsonUnreferencableObject()
         obj.setProperty(JsonDocument.TYPE, JsonDocument.ComplexObjectKind.ENUM.asJsonString)
         obj.setProperty(JsonDocument.CLASS, JsonString(className))
-        obj.setProperty(JsonDocument.VALUE, value.toJson())
+        obj.setProperty(JsonDocument.VALUE, value.toJsonValue())
         this.value = obj
     }
 

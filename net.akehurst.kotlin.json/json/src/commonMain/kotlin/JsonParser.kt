@@ -97,7 +97,8 @@ class JsonParser {
                 }
                 scanner.hasNext(TOKEN_STRING) -> {
                     val value = scanner.next(TOKEN_STRING)
-                    valueStack.push(JsonString.decode(value.drop(1).dropLast(1)))
+                    val decoded = JsonString.decode(value.drop(1).dropLast(1))
+                    valueStack.push(JsonString(decoded))
                 }
                 scanner.hasNext(TOKEN_ARRAY_START) -> {
                     scanner.next(TOKEN_ARRAY_START)
