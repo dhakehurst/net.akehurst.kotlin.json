@@ -213,6 +213,11 @@ data class JsonString(
 ) : JsonValue() {
 
     companion object {
+        private val unescape_b_regex = Regex("(?<!\\\\)\\\\b")
+        private val unescape_f_regex = Regex("(?<!\\\\)\\\\f")
+        private val unescape_n_regex = Regex("(?<!\\\\)\\\\n")
+        private val unescape_r_regex = Regex("(?<!\\\\)\\\\r")
+        private val unescape_t_regex = Regex("(?<!\\\\)\\\\t")
         fun encode(rawString:String): String {
             return rawString
                 .replace("\\", "\\\\")
@@ -225,11 +230,11 @@ data class JsonString(
         }
         fun decode(encodedValue: String): String {
             val value = encodedValue//.replace(Regex("(?<!\\\\)\\\\(.)"),"$1")
-                    .replace(Regex("(?<!\\\\)\\\\b"), "\b")
-                    .replace(Regex("(?<!\\\\)\\\\f"), "\u000C")
-                    .replace(Regex("(?<!\\\\)\\\\n"), "\n")
-                    .replace(Regex("(?<!\\\\)\\\\r"), "\r")
-                    .replace(Regex("(?<!\\\\)\\\\t"), "\t")
+                    .replace(unescape_b_regex, "\b")
+                    .replace(unescape_f_regex, "\u000C")
+                    .replace(unescape_n_regex, "\n")
+                    .replace(unescape_r_regex, "\r")
+                    .replace(unescape_t_regex, "\t")
                     .replace("\\\"", "\"")
                     .replace("\\\\", "\\")
             return value

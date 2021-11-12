@@ -47,9 +47,11 @@ class JsonParser {
             return this.input.startsWith(literal, this.position, false)
         }
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun hasNext(pattern: Regex): Boolean {
-            val lookingAt = pattern.find(this.input, this.position)?.range?.start == this.position
-            return lookingAt
+            return pattern.matchesAt(this.input, this.position)
+            //val lookingAt = pattern.find(this.input, this.position)?.range?.start == this.position
+           // return lookingAt
         }
 
         fun next(literal: String): String {
@@ -58,8 +60,11 @@ class JsonParser {
             return literal
         }
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun next(pattern: Regex): String {
-            val m = pattern.find(this.input, this.position)
+            //val m = pattern.find(this.input, this.position)
+            //val lookingAt = (m?.range?.start == this.position)
+            val m = pattern.matchAt(this.input, this.position)
             val lookingAt = (m?.range?.start == this.position)
             if (lookingAt) {
                 val match = m?.value ?: throw JsonParserException("Should never happen")
