@@ -15,8 +15,6 @@
  */
 package net.akehurst.kotlin.json
 
-import net.akehurst.kotlinx.collections.Stack
-
 class JsonParserException : RuntimeException {
     constructor(message: String) : super(message)
 }
@@ -82,9 +80,9 @@ class JsonParser {
             throw JsonParserException("Expected Json content but input was empty")
         }
         val scanner = SimpleScanner(input)
-        val path = Stack<String>()
-        val nameStack = Stack<String>()
-        val valueStack = Stack<JsonValue>()
+        val path = mutableStackOf<String>()
+        val nameStack = mutableStackOf<String>()
+        val valueStack = mutableStackOf<JsonValue>()
         while (scanner.hasMore()) {
             when {
                 scanner.hasNext(TOKEN_WHITESPACE) -> scanner.next(TOKEN_WHITESPACE)

@@ -19,11 +19,15 @@ import com.github.gmazzo.gradle.plugins.BuildConfigExtension
 import java.io.File
 
 plugins {
-    kotlin("multiplatform") version ("1.7.0") apply false
-    id("org.jetbrains.dokka") version ("1.7.0") apply false
-    id("com.github.gmazzo.buildconfig") version("3.1.0") apply false
+    kotlin("multiplatform") version ("1.9.0-RC") apply false
+    id("org.jetbrains.dokka") version ("1.8.20") apply false
+    id("com.github.gmazzo.buildconfig") version ("3.1.0") apply false
     id("nu.studer.credentials") version ("3.0")
+    id("net.akehurst.kotlin.gradle.plugin.exportPublic") version("1.9.0-RC") apply false
 }
+val kotlin_languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
+val kotlin_apiVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
+val jvmTargetVersion = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
 
 allprojects {
 
@@ -67,13 +71,17 @@ subprojects {
     configure<KotlinMultiplatformExtension> {
         jvm("jvm8") {
             val main by compilations.getting {
-                kotlinOptions {
-                    jvmTarget = JavaVersion.VERSION_1_8.toString()
+                compilerOptions.configure {
+                    languageVersion.set(kotlin_languageVersion)
+                    apiVersion.set(kotlin_apiVersion)
+                    jvmTarget.set(jvmTargetVersion)
                 }
             }
             val test by compilations.getting {
-                kotlinOptions {
-                    jvmTarget = JavaVersion.VERSION_1_8.toString()
+                compilerOptions.configure {
+                    languageVersion.set(kotlin_languageVersion)
+                    apiVersion.set(kotlin_apiVersion)
+                    jvmTarget.set(jvmTargetVersion)
                 }
             }
         }
@@ -85,8 +93,21 @@ subprojects {
     }
 
     dependencies {
-        "commonTestImplementation"(kotlin("test"))
-        "commonTestImplementation"(kotlin("test-annotations-common"))
+        //"commonTestImplementation"(kotlin("test"))
+        //"commonTestImplementation"(kotlin("test-annotations-common"))
+
+        //FIXME: temp workaround because kotlin 1.7.10 is not resolving the common deps above
+        "jvm8TestImplementation"(kotlin("test-junit"))
+        "jsTestImplementation"(kotlin("test-js"))
     }
 
+    configure<SigningExtension> {
+        useGpgCmd()
+        val publishing = project.properties["publishing"] as PublishingExtension
+        sign(publishing.publications)
+    }
+
+    rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin> {
+        rootProject.the<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension>().version = "1.22.19"
+    }
 }
