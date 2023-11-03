@@ -16,14 +16,15 @@
 
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import com.github.gmazzo.gradle.plugins.BuildConfigExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import java.io.File
 
 plugins {
-    kotlin("multiplatform") version ("1.9.10") apply false
-    id("org.jetbrains.dokka") version ("1.8.20") apply false
-    id("com.github.gmazzo.buildconfig") version ("4.1.2") apply false
+    kotlin("multiplatform") version ("1.9.20") apply false
+    id("org.jetbrains.dokka") version ("1.9.10") apply false
+    id("com.github.gmazzo.buildconfig") version("4.1.2") apply false
     id("nu.studer.credentials") version ("3.0")
-    id("net.akehurst.kotlin.gradle.plugin.exportPublic") version("1.9.10") apply false
+    id("net.akehurst.kotlin.gradle.plugin.exportPublic") version("1.9.20") apply false
 }
 val kotlin_languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
 val kotlin_apiVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
@@ -52,7 +53,11 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.multiplatform")
 
     repositories {
-        mavenLocal()
+        mavenLocal {
+            content{
+                includeGroupByRegex("net\\.akehurst.+")
+            }
+        }
         mavenCentral()
     }
 
@@ -87,18 +92,20 @@ subprojects {
         }
         js("js", IR) {
             binaries.library()
+            useEsModules()
+            tasks.withType<KotlinJsCompile>().configureEach {
+                kotlinOptions {
+                    useEsClasses = true
+                }
+            }
             nodejs()
             browser()
         }
     }
 
     dependencies {
-        //"commonTestImplementation"(kotlin("test"))
-        //"commonTestImplementation"(kotlin("test-annotations-common"))
-
-        //FIXME: temp workaround because kotlin 1.7.10 is not resolving the common deps above
-        "jvm8TestImplementation"(kotlin("test-junit"))
-        "jsTestImplementation"(kotlin("test-js"))
+        "commonTestImplementation"(kotlin("test"))
+        "commonTestImplementation"(kotlin("test-annotations-common"))
     }
 
     configure<SigningExtension> {
@@ -107,7 +114,4 @@ subprojects {
         sign(publishing.publications)
     }
 
-    rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin> {
-        rootProject.the<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension>().version = "1.22.19"
-    }
 }
