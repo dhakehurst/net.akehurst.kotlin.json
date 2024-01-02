@@ -22,7 +22,7 @@ class JsonParserException : RuntimeException {
 class JsonParser {
 
     val TOKEN_WHITESPACE = Regex("\\s+", RegexOption.MULTILINE)
-    val TOKEN_STRING = Regex("\"(?:\\\\?(.|\n))*?\"", RegexOption.MULTILINE)
+    val TOKEN_STRING = Regex("\"(?:\\\\?(?:.|\n))*?\"", RegexOption.MULTILINE)
     val TOKEN_NULL = "null"
     val TOKEN_NUMBER = Regex("-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?")
     val TOKEN_BOOLEAN = Regex("true|false", RegexOption.IGNORE_CASE)
