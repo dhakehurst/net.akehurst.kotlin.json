@@ -183,6 +183,13 @@ class JsonParser {
                                 obj.property = peek.property
                                 valueStack.push(obj)
                             }
+                            (peek.property.containsKey(JsonDocument.KIND) && peek.property[JsonDocument.KIND] == JsonDocument.ComplexObjectKind.SINGLETON.asJsonString) -> {
+                                val jPath = path.elements.toList()
+                                val obj = JsonReferencableObject(doc, jPath)
+                                valueStack.pop()
+                                obj.property = peek.property
+                                valueStack.push(obj)
+                            }
                         }
 
                     } else {
