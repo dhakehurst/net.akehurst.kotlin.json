@@ -306,7 +306,7 @@ class JsonCollectionBuilder(
 
     fun build(type: JsonString): JsonUnreferencableObject {
         val obj = JsonUnreferencableObject()
-        obj.setProperty(JsonDocument.TYPE, type)
+        obj.setProperty(JsonDocument.KIND, type)
         val elements = JsonArray()
         elements.elements = this._elements
         obj.setProperty(JsonDocument.ELEMENTS, elements)
@@ -358,7 +358,7 @@ class JsonMapBuilder(
 
     fun build(): JsonUnreferencableObject {
         val obj = JsonUnreferencableObject()
-        obj.setProperty(JsonDocument.TYPE, JsonDocument.ComplexObjectKind.MAP.asJsonString)
+        obj.setProperty(JsonDocument.KIND, JsonDocument.ComplexObjectKind.MAP.asJsonString)
         val elements = JsonArray()
         elements.elements = _entries
         obj.setProperty(JsonDocument.ENTRIES, elements)
@@ -394,7 +394,7 @@ class JsonObjectBuilder(
 
     fun build(path: List<String>, className: String): JsonReferencableObject {
         val obj = JsonReferencableObject(doc, path)
-        obj.setProperty(JsonDocument.TYPE, JsonDocument.ComplexObjectKind.OBJECT.asJsonString)
+        obj.setProperty(JsonDocument.KIND, JsonDocument.ComplexObjectKind.OBJECT.asJsonString)
         obj.setProperty(JsonDocument.CLASS, JsonString(className))
         _properties.forEach {
             obj.setProperty(it.key, it.value)
@@ -441,7 +441,7 @@ class JsonValueBuilder(
     fun primitiveObject(className: String, value: Any) {
         this.validate(this)
         val obj = JsonUnreferencableObject()
-        obj.setProperty(JsonDocument.TYPE, JsonDocument.ComplexObjectKind.PRIMITIVE.asJsonString)
+        obj.setProperty(JsonDocument.KIND, JsonDocument.ComplexObjectKind.PRIMITIVE.asJsonString)
         obj.setProperty(JsonDocument.CLASS, JsonString(className))
         obj.setProperty(JsonDocument.VALUE, value.toJsonValue())
         this.value = obj
@@ -450,7 +450,7 @@ class JsonValueBuilder(
     fun enumObject(className: String, value: Enum<*>) {
         this.validate(this)
         val obj = JsonUnreferencableObject()
-        obj.setProperty(JsonDocument.TYPE, JsonDocument.ComplexObjectKind.ENUM.asJsonString)
+        obj.setProperty(JsonDocument.KIND, JsonDocument.ComplexObjectKind.ENUM.asJsonString)
         obj.setProperty(JsonDocument.CLASS, JsonString(className))
         obj.setProperty(JsonDocument.VALUE, value.toJsonValue())
         this.value = obj

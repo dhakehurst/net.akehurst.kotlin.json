@@ -20,16 +20,16 @@ class JsonException : RuntimeException {
 }
 
 data class JsonDocument(
-        val identity: String
+    val identity: String
 ) {
     enum class ComplexObjectKind {
-        PRIMITIVE,ENUM,ARRAY,OBJECT,LIST,SET,MAP;
+        SINGLETON, PRIMITIVE, ENUM, ARRAY, OBJECT, LIST, SET, MAP;
 
         val asJsonString get() = JsonString("\$${this.name}")
     }
 
     companion object {
-        val TYPE = "\$type"     // PRIMITIVE | OBJECT | LIST | SET | MAP
+        val KIND = "\$kind"     // SINGLETON | PRIMITIVE | OBJECT | LIST | SET | MAP
         val CLASS = "\$class"
         val KEY = "\$key"
         val VALUE = "\$value"
@@ -45,7 +45,7 @@ data class JsonDocument(
         return this.root.toStringJson()
     }
 
-    fun toFormattedJsonString(indent:String="  ", increment:String="  "): String {
+    fun toFormattedJsonString(indent: String = "  ", increment: String = "  "): String {
         return this.root.toFormattedJsonString(indent, increment)
     }
 }
@@ -77,7 +77,7 @@ abstract class JsonValue {
     }
 
     abstract fun toStringJson(): String
-    abstract fun toFormattedJsonString(indent:String, increment:String): String
+    abstract fun toFormattedJsonString(indent: String, increment: String): String
 }
 
 abstract class JsonObject : JsonValue() {
@@ -99,9 +99,9 @@ abstract class JsonObject : JsonValue() {
         return """{${elements}}"""
     }
 
-    override fun toFormattedJsonString(indent: String, increment:String): String {
+    override fun toFormattedJsonString(indent: String, increment: String): String {
         val elements = this.property.map {
-            """$indent"${it.key}" : ${it.value.toFormattedJsonString(indent+increment, increment)}"""
+            """$indent"${it.key}" : ${it.value.toFormattedJsonString(indent + increment, increment)}"""
         }.joinToString(",\n")
         return "{\n${elements}\n${indent.substringBeforeLast(increment)}}".trimMargin()
     }
@@ -116,8 +116,8 @@ class JsonUnreferencableObject : JsonObject() {
 }
 
 data class JsonReferencableObject(
-        val document: JsonDocument,
-        val path: List<String>
+    val document: JsonDocument,
+    val path: List<String>
 ) : JsonObject() {
 
     init {
@@ -131,8 +131,8 @@ data class JsonReferencableObject(
 }
 
 data class JsonReference(
-        val document: JsonDocument,
-        val refPath: List<String>
+    val document: JsonDocument,
+    val refPath: List<String>
 ) : JsonValue() {
 
     val target: JsonValue
@@ -145,17 +145,17 @@ data class JsonReference(
     }
 
     override fun toStringJson(): String {
-        val refPathStr = this.refPath.joinToString(separator="/", prefix = "/")
+        val refPathStr = this.refPath.joinToString(separator = "/", prefix = "/")
         return """{ "${Json.REF}" : "$refPathStr" }"""
     }
 
-    override fun toFormattedJsonString(indent: String, increment:String): String {
+    override fun toFormattedJsonString(indent: String, increment: String): String {
         return this.toStringJson()
     }
 }
 
 data class JsonBoolean(
-        val value: Boolean
+    val value: Boolean
 ) : JsonValue() {
     override fun asBoolean(): JsonBoolean {
         return this
@@ -164,13 +164,14 @@ data class JsonBoolean(
     override fun toStringJson(): String {
         return """${this.value}"""
     }
-    override fun toFormattedJsonString(indent: String, increment:String): String {
+
+    override fun toFormattedJsonString(indent: String, increment: String): String {
         return this.toStringJson()
     }
 }
 
 data class JsonNumber(
-        private val _value: String
+    private val _value: String
 ) : JsonValue() {
     fun toByte(): Byte {
         return this._value.toByte()
@@ -203,13 +204,14 @@ data class JsonNumber(
     override fun toStringJson(): String {
         return this._value
     }
-    override fun toFormattedJsonString(indent: String, increment:String): String {
+
+    override fun toFormattedJsonString(indent: String, increment: String): String {
         return this.toStringJson()
     }
 }
 
 data class JsonString(
-        val value: String
+    val value: String
 ) : JsonValue() {
 
     companion object {
@@ -218,7 +220,7 @@ data class JsonString(
         private val unescape_n_regex = Regex("(?<!\\\\)\\\\n")
         private val unescape_r_regex = Regex("(?<!\\\\)\\\\r")
         private val unescape_t_regex = Regex("(?<!\\\\)\\\\t")
-        fun encode(rawString:String): String {
+        fun encode(rawString: String): String {
             return rawString
                 .replace("\\", "\\\\")
                 .replace("\b", "\\b")
@@ -228,27 +230,29 @@ data class JsonString(
                 .replace("\t", "\\t")
                 .replace("\"", "\\\"")
         }
+
         fun decode(encodedValue: String): String {
             val value = encodedValue//.replace(Regex("(?<!\\\\)\\\\(.)"),"$1")
-                    .replace(unescape_b_regex, "\b")
-                    .replace(unescape_f_regex, "\u000C")
-                    .replace(unescape_n_regex, "\n")
-                    .replace(unescape_r_regex, "\r")
-                    .replace(unescape_t_regex, "\t")
-                    .replace("\\\"", "\"")
-                    .replace("\\\\", "\\")
+                .replace(unescape_b_regex, "\b")
+                .replace(unescape_f_regex, "\u000C")
+                .replace(unescape_n_regex, "\n")
+                .replace(unescape_r_regex, "\r")
+                .replace(unescape_t_regex, "\t")
+                .replace("\\\"", "\"")
+                .replace("\\\\", "\\")
             return value
         }
     }
 
     val encodedValue: String get() = encode(value)
 
-    override fun asString(): JsonString =this
+    override fun asString(): JsonString = this
 
     override fun toStringJson(): String {
         return """"${this.encodedValue}""""
     }
-    override fun toFormattedJsonString(indent: String, increment:String): String {
+
+    override fun toFormattedJsonString(indent: String, increment: String): String {
         return this.toStringJson()
     }
 }
@@ -267,13 +271,15 @@ class JsonArray : JsonValue() {
         }.joinToString(",")
         return """[${elements}]"""
     }
-    override fun toFormattedJsonString(indent: String, increment:String): String {
+
+    override fun toFormattedJsonString(indent: String, increment: String): String {
         return when (elements.size) {
             0 -> "[]"
             1 -> {
                 val element = this.elements[0].toFormattedJsonString(indent + increment, increment)
                 return "[ ${element} ]"
             }
+
             else -> {
                 val elements = this.elements.map {
                     indent + it.toFormattedJsonString(indent + increment, increment)
@@ -305,7 +311,8 @@ object JsonNull : JsonValue() {
     override fun toString(): String {
         return "null"
     }
-    override fun toFormattedJsonString(indent: String, increment:String): String {
+
+    override fun toFormattedJsonString(indent: String, increment: String): String {
         return this.toStringJson()
     }
 }
