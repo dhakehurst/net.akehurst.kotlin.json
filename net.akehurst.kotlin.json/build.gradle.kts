@@ -27,8 +27,8 @@ plugins {
     alias(libs.plugins.exportPublic) apply false
 
 }
-val kotlin_languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1
-val kotlin_apiVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1
+val kotlin_languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
+val kotlin_apiVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
 val jvmTargetVersion = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
 
 allprojects {
@@ -89,13 +89,10 @@ subprojects {
                 }
             }
         }
-        js("js", IR) {
+        js("js") {
             binaries.library()
-            useEsModules()
-            tasks.withType<KotlinJsCompile>().configureEach {
-                kotlinOptions {
-                    useEsClasses = true
-                }
+            compilerOptions {
+                target.set("es2015")
             }
             nodejs()
             browser()
@@ -121,6 +118,7 @@ subprojects {
     }
 
     configure<SigningExtension> {
+        setRequired( {  gradle.taskGraph.hasTask("uploadArchives") })
         useGpgCmd()
         val publishing = project.properties["publishing"] as PublishingExtension
         sign(publishing.publications)
@@ -152,29 +150,29 @@ subprojects {
                     password = getProjectProperty("PUB_PASSWORD")?: creds.forKey(getProjectProperty("PUB_USERNAME"))
                 }
             }
-            publications.withType<MavenPublication> {
-                artifact(javadocJar.get())
+        }
+        publications.withType<MavenPublication> {
+            artifact(javadocJar.get())
 
-                pom {
-                    name.set("kotlin-json")
-                    description.set("Multiplatform implementation of JSON")
+            pom {
+                name.set("kotlin-json")
+                description.set("Multiplatform implementation of JSON")
+                url.set("https://github.com/dhakehurst/net.akehurst.kotlin.json")
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        name.set("Dr. David H. Akehurst")
+                        email.set("dr.david.h@akehurst.net")
+                    }
+                }
+                scm {
                     url.set("https://github.com/dhakehurst/net.akehurst.kotlin.json")
-
-                    licenses {
-                        license {
-                            name.set("The Apache License, Version 2.0")
-                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                        }
-                    }
-                    developers {
-                        developer {
-                            name.set("Dr. David H. Akehurst")
-                            email.set("dr.david.h@akehurst.net")
-                        }
-                    }
-                    scm {
-                        url.set("https://github.com/dhakehurst/net.akehurst.kotlin.json")
-                    }
                 }
             }
         }
