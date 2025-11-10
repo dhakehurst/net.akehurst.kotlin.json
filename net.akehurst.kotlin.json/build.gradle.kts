@@ -23,10 +23,11 @@ plugins {
     alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.dokka) apply false
     alias(libs.plugins.buildconfig) apply false
-    alias(libs.plugins.credentials) apply true
     alias(libs.plugins.exportPublic) apply false
-
+    alias(libs.plugins.vanniktech.maven.publish) apply false
 }
+project.layout.buildDirectory = File(rootProject.projectDir, ".gradle-build/${project.name}")
+/*
 val kotlin_languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
 val kotlin_apiVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
 val jvmTargetVersion = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
@@ -188,3 +189,5 @@ subprojects {
         }
     }
 }
+
+ */
