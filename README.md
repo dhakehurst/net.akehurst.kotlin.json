@@ -1,3 +1,7 @@
+Archived.
+Code base moved to https://github.com/dhakehurst/net.akehurst.kotlin.kserialisation
+
+
 [![Build Status](https://travis-ci.com/dhakehurst/net.akehurst.kotlin.json.svg?branch=master)](https://travis-ci.com/dhakehurst/net.akehurst.kotlin.json)
 [![Maven Central](https://img.shields.io/maven-central/v/net.akehurst.kotlin.json/json.svg)](https://search.maven.org/artifact/net.akehurst.kotlin.json/json)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
